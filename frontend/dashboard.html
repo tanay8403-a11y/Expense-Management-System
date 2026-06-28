@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>FinancePro Dashboard</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#256af4",
+            "background-light": "#f5f6f8",
+            "background-dark": "#101622",
+          },
+          fontFamily: { "display": ["Inter"] },
+          borderRadius: {
+            "DEFAULT": "0.5rem", "lg": "1rem",
+            "xl": "1.5rem", "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .chart-gradient {
+      background: linear-gradient(180deg, rgba(37, 106, 244, 0.2) 0%, rgba(37, 106, 244, 0) 100%);
+    }
+  </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+
+  <!-- ── Sidebar Overlay (mobile) ───────────────────────────── -->
+  <div id="sidebar-overlay"></div>
+
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- ── Side Navigation ──────────────────────────────────── -->
+    <aside id="sidebar"
+      class="w-64 flex-shrink-0 bg-background-light dark:bg-[#0b101a] border-r border-slate-200 dark:border-slate-800 flex flex-col relative z-[60]">
+
+      <!-- Brand -->
+      <div class="p-5 flex items-center gap-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="size-10 bg-primary rounded-lg flex items-center justify-center text-white flex-shrink-0">
+          <span class="material-symbols-outlined text-2xl">account_balance_wallet</span>
+        </div>
+        <div class="min-w-0">
+          <span class="font-bold text-sm leading-tight tracking-tight truncate">EMS</span>
+        </div>
+        <!-- Close button — mobile only -->
+        <button id="sidebar-close-btn"
+          class="ml-auto text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors lg:hidden"
+          aria-label="Close menu">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Nav links -->
+      <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+        <button
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-medium hover:bg-primary/20 transition-colors cursor-pointer"
+          onclick="loadContent('dashboard',event)">
+          <span class="material-symbols-outlined">dashboard</span>
+          Dashboard
+        </button>
+        <button
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          onclick="loadContent('expenses')">
+          <span class="material-symbols-outlined">receipt_long</span>
+          Expenses
+        </button>
+        <button
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          onclick="loadContent('savings')">
+          <span class="material-symbols-outlined">savings</span>
+          Savings
+        </button>
+        <button
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          onclick="loadContent('reports')">
+          <span class="material-symbols-outlined">bar_chart</span>
+          Reports
+        </button>
+        <button
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg bg-yellow-400 text-black font-semibold shadow-md hover:bg-yellow-500 transition-colors cursor-pointer"
+          onclick="openBudgetModal()">
+          <span class="material-symbols-outlined">bolt</span>
+          Add Amount
+        </button>
+      </nav>
+
+      <!-- Settings -->
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+        <button
+          class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+          onclick="showSettings()">
+          <span class="material-symbols-outlined">settings</span>
+          Settings
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── Main Content ──────────────────────────────────────── -->
+    <main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark">
+
+      <!-- Header -->
+      <header
+        class="sticky top-0 z-10 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 md:px-8 py-3 md:py-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
+
+        <!-- Hamburger — mobile only -->
+        <button id="hamburger-btn"
+          class="flex items-center justify-center w-10 h-10 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors lg:hidden flex-shrink-0"
+          aria-label="Open menu">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+
+        <!-- Title -->
+        <div class="min-w-0 flex-1">
+          <h2 id="pageTitle" class="text-base md:text-xl font-bold truncate">Expense Overview</h2>
+          <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400">
+            Welcome <span id="welcomeUsername">User</span>
+          </p>
+        </div>
+
+      </header>
+
+      <!-- Dashboard Content -->
+      <div id="mainContent" class="p-4 md:p-8 space-y-6 md:space-y-8">
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+
+          <div
+            class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-3 md:mb-4">
+              <div class="size-10 md:size-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                <span class="material-symbols-outlined text-xl md:text-2xl">payments</span>
+              </div>
+              <span class="text-emerald-500 text-xs font-medium flex items-center">
+                +12.5% <span class="material-symbols-outlined text-xs ml-1">trending_up</span>
+              </span>
+            </div>
+            <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium">Total Monthly Expense</p>
+            <h3 id="monthlyExpense" class="text-xl md:text-2xl font-bold mt-1">₹0</h3>
+          </div>
+
+          <div
+            class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-3 md:mb-4">
+              <div
+                class="size-10 md:size-12 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-500">
+                <span class="material-symbols-outlined text-xl md:text-2xl">today</span>
+              </div>
+              <span class="text-rose-500 text-xs font-medium flex items-center">
+                -5.2% <span class="material-symbols-outlined text-xs ml-1">trending_down</span>
+              </span>
+            </div>
+            <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium">Today's Expense</p>
+            <h3 id="todayExpense" class="text-xl md:text-2xl font-bold mt-1">₹0</h3>
+          </div>
+
+          <div
+            class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm sm:col-span-2 lg:col-span-1">
+            <div class="flex items-center justify-between mb-3 md:mb-4">
+              <div
+                class="size-10 md:size-12 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                <span class="material-symbols-outlined text-xl md:text-2xl">account_balance</span>
+              </div>
+              <span class="text-emerald-500 text-xs font-medium flex items-center">
+                +8.1% <span class="material-symbols-outlined text-xs ml-1">trending_up</span>
+              </span>
+            </div>
+            <p class="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium"> Monthly Remaining Budget</p>
+            <h3 id="savingsAmount" class="text-xl md:text-2xl font-bold mt-1">₹0</h3>
+          </div>
+
+        </div>
+
+        <!-- Chart + Right Panel Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+
+          <!-- Left: Charts + Table -->
+          <div class="lg:col-span-2 space-y-6 md:space-y-8">
+
+            <!-- Financial Analytics Chart -->
+            <div
+              class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div class="flex items-center justify-between mb-5 md:mb-8">
+                <h4 class="font-bold text-base md:text-lg">Financial Analytics</h4>
+                <div class="flex gap-2">
+                  <button id="weeklyBtn"
+                    class="px-3 py-1.5 text-xs font-semibold rounded-md bg-slate-100 dark:bg-slate-800">
+                    Weekly
+                  </button>
+                  <button id="monthlyBtn" class="px-3 py-1.5 text-xs font-semibold rounded-md bg-primary text-white">
+                    Monthly
+                  </button>
+                </div>
+              </div>
+              <div class="h-48 md:h-64 relative flex flex-col">
+                <div class="flex-1 relative overflow-x-auto">
+                  <svg class="w-full h-full" preserveAspectRatio="none" viewBox="0 0 1000 300">
+                    <defs>
+                      <linearGradient id="grad1" x1="0%" x2="0%" y1="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(37,106,244,0.4);stop-opacity:1"></stop>
+                        <stop offset="100%" style="stop-color:rgba(37,106,244,0);stop-opacity:1"></stop>
+                      </linearGradient>
+                      <linearGradient id="barGrad" x1="0%" x2="0%" y1="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:rgba(37,106,244,0.8);stop-opacity:1"></stop>
+                        <stop offset="100%" style="stop-color:rgba(37,106,244,0.5);stop-opacity:1"></stop>
+                      </linearGradient>
+                    </defs>
+                    <path id="areaChart" fill="url(#grad1)"></path>
+                    <path id="lineChart" fill="none" stroke="#256af4" stroke-linecap="round" stroke-width="4"></path>
+                    <g id="barChartGroup"></g>
+                  </svg>
+                </div>
+                <!-- X-Axis Labels -->
+                <div class="flex justify-between text-xs font-medium text-slate-500 mt-2 px-1">
+                  <span id="label0">Jan</span><span id="label1">Feb</span>
+                  <span id="label2">Mar</span><span id="label3">Apr</span>
+                  <span id="label4">May</span><span id="label5">Jun</span>
+                  <span id="label6">Jul</span><span id="label7">Aug</span>
+                  <span id="label8">Sep</span><span id="label9">Oct</span>
+                  <span id="label10">Nov</span><span id="label11">Dec</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Transactions Table -->
+            <div
+              class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+              <div class="p-4 md:p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <h4 class="font-bold text-base md:text-lg">Recent Transactions</h4>
+                <button class="text-primary text-sm font-semibold hover:underline cursor-pointer"
+                  onclick="loadContent('expenses')">View All</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left" style="min-width:500px">
+                  <thead
+                    class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wider">
+                    <tr>
+                      <th class="px-4 md:px-6 py-3 md:py-4 font-semibold">Description</th>
+                      <th class="px-4 md:px-6 py-3 md:py-4 font-semibold">Category</th>
+                      <th class="px-4 md:px-6 py-3 md:py-4 font-semibold hidden sm:table-cell">Date</th>
+                      <th class="px-4 md:px-6 py-3 md:py-4 font-semibold text-right">Amount</th>
+                      <th class="px-4 md:px-6 py-3 md:py-4 font-semibold text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="expenseTable" class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Right: Category Chart + Add Expense Form -->
+          <div class="space-y-6 md:space-y-8">
+
+            <!-- Spending by Category -->
+            <div
+              class="bg-white dark:bg-slate-900 p-4 md:p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <h4 class="font-bold text-base md:text-lg mb-4 md:mb-6">Spending by Category</h4>
+              <div class="relative w-36 h-36 md:w-48 md:h-48 mx-auto mb-4 md:mb-6">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle id="travelCircle" cx="50" cy="50" r="40" fill="transparent" stroke="blue" stroke-width="12">
+                  </circle>
+                  <circle id="foodCircle" cx="50" cy="50" r="40" fill="transparent" stroke="orange" stroke-width="12">
+                  </circle>
+                  <circle id="billsCircle" cx="50" cy="50" r="40" fill="transparent" stroke="purple" stroke-width="12">
+                  </circle>
+                  <circle id="housingCircle" cx="50" cy="50" r="40" fill="transparent" stroke="green" stroke-width="12">
+                  </circle>
+                  <circle id="shoppingCircle" cx="50" cy="50" r="40" fill="transparent" stroke="pink" stroke-width="12">
+                  </circle>
+                  <circle id="otherCircle" cx="50" cy="50" r="40" fill="transparent" stroke="gray" stroke-width="12">
+                  </circle>
+                </svg>
+              </div>
+              <div class="space-y-2 md:space-y-3">
+                <div class="flex items-center justify-between text-xs md:text-sm">
+                  <span class="flex items-center gap-2"><span
+                      class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>Travel</span>
+                  <span id="travelAmount" class="font-semibold">₹0</span>
+                </div>
+                <div class="flex items-center justify-between text-xs md:text-sm">
+                  <span class="flex items-center gap-2"><span
+                      class="w-2.5 h-2.5 rounded-full bg-orange-400 inline-block"></span>Food</span>
+                  <span id="foodAmount" class="font-semibold">₹0</span>
+                </div>
+                <div class="flex items-center justify-between text-xs md:text-sm">
+                  <span class="flex items-center gap-2"><span
+                      class="w-2.5 h-2.5 rounded-full bg-purple-500 inline-block"></span>Bills</span>
+                  <span id="billsAmount" class="font-semibold">₹0</span>
+                </div>
+                <div class="flex items-center justify-between text-xs md:text-sm">
+                  <span class="flex items-center gap-2"><span
+                      class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span>Housing</span>
+                  <span id="housingAmount" class="font-semibold">₹0</span>
+                </div>
+                <div class="flex items-center justify-between text-xs md:text-sm">
+                  <span class="flex items-center gap-2"><span
+                      class="w-2.5 h-2.5 rounded-full bg-pink-500 inline-block"></span>Shopping</span>
+                  <span id="shoppingAmount" class="font-semibold">₹0</span>
+                </div>
+                <div class="flex items-center justify-between text-xs md:text-sm">
+                  <span class="flex items-center gap-2"><span
+                      class="w-2.5 h-2.5 rounded-full bg-gray-400 inline-block"></span>Other</span>
+                  <span id="otherAmount" class="font-semibold">₹0</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add New Expense Form -->
+            <div class="bg-primary p-4 md:p-6 rounded-xl shadow-lg text-white">
+              <h4 class="font-bold text-base md:text-lg mb-3 md:mb-4">Add New Expense</h4>
+              <form id="expenseForm" class="space-y-3 md:space-y-4">
+                <div>
+                  <label
+                    class="block text-xs font-semibold uppercase tracking-wider mb-1 md:mb-1.5 text-white/80">Description</label>
+                  <input id="description" type="text"
+                    class="w-full px-3 md:px-4 py-2 md:py-2.5 bg-white text-slate-900 rounded-lg text-sm placeholder-slate-400 font-medium focus:outline-none focus:ring-2 focus:ring-white/50"
+                    placeholder="Rent, Groceries, etc.">
+                </div>
+                <div>
+                  <label
+                    class="block text-xs font-semibold uppercase tracking-wider mb-1 md:mb-1.5 text-white/80">Date</label>
+                  <input id="date" type="date"
+                    class="w-full px-3 md:px-4 py-2 md:py-2.5 bg-white text-slate-900 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/50">
+                </div>
+                <div class="grid grid-cols-2 gap-3 md:gap-4">
+                  <div>
+                    <label
+                      class="block text-xs font-semibold uppercase tracking-wider mb-1 md:mb-1.5 text-white/80">Amount</label>
+                    <input id="amount" type="number"
+                      class="w-full px-3 md:px-4 py-2 md:py-2.5 bg-white text-slate-900 rounded-lg text-sm placeholder-slate-400 font-medium focus:outline-none focus:ring-2 focus:ring-white/50"
+                      placeholder="0.00">
+                  </div>
+                  <div>
+                    <label
+                      class="block text-xs font-semibold uppercase tracking-wider mb-1 md:mb-1.5 text-white/80">Category</label>
+                    <select id="category"
+                      class="w-full px-3 md:px-4 py-2 md:py-2.5 bg-white text-slate-900 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white/50">
+                      <option>Food</option>
+                      <option>Travel</option>
+                      <option>Shopping</option>
+                      <option>Bills</option>
+                      <option>Housing</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit"
+                  class="w-full py-2.5 md:py-3 bg-white text-primary font-bold rounded-lg hover:bg-slate-50 transition-colors text-sm md:text-base mt-1">
+                  Save Expense
+                </button>
+              </form>
+            </div>
+
+          </div>
+          <!-- end right panel -->
+
+        </div>
+        <!-- end chart+panel grid -->
+
+      </div>
+      <!-- end mainContent -->
+
+    </main>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+  <script src="js/expense.js"></script>
+
+  <!-- ── Set Budget Modal ─────────────────────────────────────── -->
+  <div id="budgetModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden" aria-modal="true"
+    role="dialog" aria-labelledby="budgetModalTitle">
+
+    <!-- Backdrop -->
+    <div id="budgetModalBackdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeBudgetModal()">
+    </div>
+
+    <!-- Card -->
+    <div class="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl
+                w-full max-w-md mx-auto z-10
+                border border-slate-200 dark:border-slate-700
+                animate-modal">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4
+                  border-b border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-yellow-500">bolt</span>
+          <h3 id="budgetModalTitle" class="text-lg font-bold">Set Budget</h3>
+        </div>
+        <button onclick="closeBudgetModal()" class="w-8 h-8 flex items-center justify-center rounded-full
+                 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200
+                 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" aria-label="Close">
+          <span class="material-symbols-outlined text-xl">close</span>
+        </button>
+      </div>
+
+      <!-- Form -->
+      <div class="px-6 py-5 space-y-4">
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider
+                        text-slate-500 dark:text-slate-400 mb-1.5">Month</label>
+          <input type="month" id="budgetMonth" class="w-full px-4 py-2.5 rounded-lg text-sm font-medium
+                   bg-slate-50 dark:bg-slate-800
+                   border border-slate-300 dark:border-slate-600
+                   text-slate-900 dark:text-slate-100
+                   focus:outline-none focus:ring-2 focus:ring-primary/50
+                   focus:border-primary transition" required>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider
+                        text-slate-500 dark:text-slate-400 mb-1.5">Monthly Budget (₹)</label>
+          <input type="number" id="modalMonthlyBudget" min="0" step="0.01" class="w-full px-4 py-2.5 rounded-lg text-sm font-medium
+                   bg-slate-50 dark:bg-slate-800
+                   border border-slate-300 dark:border-slate-600
+                   text-slate-900 dark:text-slate-100
+                   placeholder-slate-400
+                   focus:outline-none focus:ring-2 focus:ring-primary/50
+                   focus:border-primary transition" placeholder="e.g. 20000" required>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider
+                        text-slate-500 dark:text-slate-400 mb-1.5">Daily Limit (₹)</label>
+          <input type="number" id="modalDailyLimit" min="0" step="0.01" class="w-full px-4 py-2.5 rounded-lg text-sm font-medium
+                   bg-slate-50 dark:bg-slate-800
+                   border border-slate-300 dark:border-slate-600
+                   text-slate-900 dark:text-slate-100
+                   placeholder-slate-400
+                   focus:outline-none focus:ring-2 focus:ring-primary/50
+                   focus:border-primary transition" placeholder="e.g. 700" required>
+        </div>
+
+        <p id="budgetModalError" class="text-xs text-red-500 font-medium hidden"></p>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="flex items-center gap-3 px-6 py-4
+                  border-t border-slate-200 dark:border-slate-800">
+        <button onclick="closeBudgetModal()" class="flex-1 py-2.5 rounded-lg text-sm font-semibold
+                 bg-slate-100 dark:bg-slate-800
+                 text-slate-700 dark:text-slate-300
+                 hover:bg-slate-200 dark:hover:bg-slate-700
+                 transition-colors">
+          Cancel
+        </button>
+        <button id="saveBudgetBtn" onclick="submitBudget()" class="flex-1 py-2.5 rounded-lg text-sm font-bold
+                 bg-yellow-400 text-black
+                 hover:bg-yellow-500 active:scale-95
+                 transition-all shadow-md shadow-yellow-400/20">
+          Save Budget
+        </button>
+      </div>
+
+    </div>
+  </div>
+</body>
+
+</html>
