@@ -1,0 +1,450 @@
+/* ============================================================
+   EXPENSE TRACKER — style.css
+   Full responsive media queries for every device
+   + Mobile sidebar / hamburger nav
+============================================================ */
+
+/* ── GLOBAL ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-size: 14px; overflow-x: hidden; }
+
+/* ── SIDEBAR OVERLAY ──────────────────────────────────────── */
+#sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 199;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+#sidebar-overlay.show {
+  display: block;
+  opacity: 1;
+}
+
+/* ── SIDEBAR ──────────────────────────────────────────────── */
+#sidebar {
+  position: fixed !important;
+  top: 0;
+  left: -280px;
+  width: 260px !important;
+  height: 100vh;
+  z-index: 200;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+}
+#sidebar.sidebar-open {
+  left: 0;
+  box-shadow: 4px 0 32px rgba(0, 0, 0, 0.2);
+}
+
+#sidebar h1 { font-size: 0.82rem; line-height: 1.35; }
+#sidebar nav button { font-size: 0.875rem; transition: background 0.15s, color 0.15s; }
+
+/* Close button inside sidebar — mobile only */
+#sidebar-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+/* ── HAMBURGER BUTTON ─────────────────────────────────────── */
+#hamburger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+#hamburger-btn:hover { background: rgba(0,0,0,0.06); }
+.dark #hamburger-btn:hover { background: rgba(255,255,255,0.08); }
+
+/* ── MAIN ─────────────────────────────────────────────────── */
+main {
+  margin-left: 0;
+  transition: margin-left 0.3s ease;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── HEADER ───────────────────────────────────────────────── */
+header { padding: 10px 14px; }
+#pageTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── MAIN CONTENT ─────────────────────────────────────────── */
+#mainContent { padding: 14px; }
+
+/* ── CHART HEIGHT ─────────────────────────────────────────── */
+.h-48, .h-64 { height: 180px; }
+
+/* ── TABLE scroll ─────────────────────────────────────────── */
+.overflow-x-auto { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ── DELETE BUTTONS ───────────────────────────────────────── */
+.delete-btn, .all-delete-btn { font-size: 11px; padding: 5px 8px; }
+
+/* ── PREVENT iOS INPUT ZOOM ───────────────────────────────── */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="email"],
+select, textarea { font-size: 16px; }
+
+@media (hover: hover) {
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  input[type="email"],
+  select, textarea { font-size: 14px; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   480px — Small phones
+════════════════════════════════════════════════════════════ */
+@media (min-width: 480px) {
+  header { padding: 10px 16px; }
+  #pageTitle { font-size: 1.05rem; }
+  #mainContent { padding: 16px; }
+  .delete-btn, .all-delete-btn { font-size: 12px; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   640px — Tablet
+════════════════════════════════════════════════════════════ */
+@media (min-width: 640px) {
+  header { padding: 12px 20px; }
+  #pageTitle { font-size: 1.15rem; }
+  #mainContent { padding: 20px; }
+  .h-48, .h-64 { height: 200px; }
+  .delete-btn, .all-delete-btn { font-size: 12px; padding: 6px 10px; }
+}
+
+
+/* ── CHART ANIMATIONS ─────────────────────────────────────── */
+@keyframes growBar {
+  from {
+    height: 0;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    height: 100%;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawLine {
+  from {
+    stroke-dashoffset: 1000;
+    opacity: 0.3;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes fillArea {
+  from {
+    opacity: 0;
+    fill-opacity: 0;
+  }
+  to {
+    opacity: 1;
+    fill-opacity: 0.4;
+  }
+}
+
+@keyframes drawPie {
+  from {
+    stroke-dasharray: 0 251;
+    opacity: 0;
+  }
+  to {
+    stroke-dasharray: var(--dash-value) 251;
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInAmount {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart-bar {
+  animation: growBar 0.6s ease-out forwards;
+  transform-origin: bottom;
+}
+
+.chart-line {
+  animation: drawLine 1s ease-out forwards;
+  stroke-dasharray: var(--path-length, 1000);
+  stroke-dashoffset: var(--path-length, 1000);
+}
+
+.chart-area {
+  animation: fillArea 0.8s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+.pie-segment {
+  animation: drawPie 0.8s ease-out forwards;
+  stroke-dasharray: 0 251;
+}
+
+.amount-text {
+  animation: fadeInAmount 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   768px — Sidebar always visible
+════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) {
+  /* Pin sidebar permanently */
+  #sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    box-shadow: none !important;
+    transition: none;
+  }
+  #sidebar-overlay  { display: none !important; }
+  #hamburger-btn    { display: none !important; }
+  #sidebar-close-btn { display: none !important; }
+
+  /* Push main content right */
+  main { margin-left: 260px; }
+
+  body { font-size: 15px; }
+  header { padding: 14px 28px; }
+  #pageTitle { font-size: 1.35rem; }
+  #mainContent { padding: 24px; }
+  .h-48, .h-64 { height: 220px; }
+  .delete-btn, .all-delete-btn { font-size: 13px; padding: 6px 12px; }
+  #sidebar h1 { font-size: 0.875rem; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   1024px — Desktop
+════════════════════════════════════════════════════════════ */
+@media (min-width: 1024px) {
+  body { font-size: 15px; }
+  header { padding: 16px 32px; }
+  #pageTitle { font-size: 1.5rem; }
+  #mainContent { padding: 32px; }
+  .h-48, .h-64 { height: 240px; }
+  #sidebar h1 { font-size: 0.9rem; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   1280px — Wide desktop
+════════════════════════════════════════════════════════════ */
+@media (min-width: 1280px) {
+  header { padding: 16px 40px; }
+  #pageTitle { font-size: 1.6rem; }
+  #mainContent { padding: 36px; }
+  .h-48, .h-64 { height: 256px; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   1536px — Ultra-wide
+════════════════════════════════════════════════════════════ */
+@media (min-width: 1536px) {
+  body { font-size: 16px; }
+  header { padding: 18px 48px; }
+  #pageTitle { font-size: 1.7rem; }
+  #mainContent { padding: 40px; max-width: 1600px; }
+  .h-48, .h-64 { height: 280px; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   Touch / coarse pointer
+════════════════════════════════════════════════════════════ */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  .delete-btn, .all-delete-btn,
+  #hamburger-btn, #sidebar-close-btn,
+  #sidebar nav button,
+  #weeklyBtn, #monthlyBtn { min-height: 44px; }
+
+  table tbody td { padding: 13px 12px; }
+
+  #expenseForm button[type="submit"],
+  #quickSubmitBtn { padding: 14px; font-size: 15px; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   Reduced motion
+════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   Print
+════════════════════════════════════════════════════════════ */
+@media print {
+  #sidebar, #hamburger-btn, #sidebar-overlay, #sidebar-close-btn,
+  .delete-btn, .all-delete-btn, #expenseForm,
+  .bg-primary.rounded-xl, #weeklyBtn, #monthlyBtn { display: none !important; }
+
+  main { margin-left: 0 !important; }
+  #mainContent { padding: 0 !important; }
+  body { font-size: 12px; color: #000 !important; background: #fff !important; }
+
+  table { border-collapse: collapse; width: 100%; }
+  table th, table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px !important;
+    font-size: 11px;
+    color: #000 !important;
+    white-space: normal;
+  }
+  @page { margin: 1.5cm; size: A4; }
+}
+
+/* ============================================================
+   ADD THESE STYLES TO YOUR css/style.css
+   (Modal animation + responsive tweaks for the update popup)
+============================================================ */
+
+/* ── Modal slide-up animation ─────────────────────────────── */
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-modal {
+    animation: modalIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ── Modal responsive ─────────────────────────────────────── */
+
+/* Mobile: modal sits near bottom, full width */
+@media (max-width: 480px) {
+    #updateModal > div:last-child {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        max-width: 100% !important;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-top-left-radius: 1.25rem;
+        border-top-right-radius: 1.25rem;
+    }
+
+    @keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: translateY(100%);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Stack Amount + Category fields vertically on small phones */
+    #updateModal .grid.grid-cols-2 {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Tablet and up: centered modal */
+@media (min-width: 481px) {
+    #updateModal > div:last-child {
+        max-width: 28rem;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   Day-wise sections collapse functionality
+════════════════════════════════════════════════════════════ */
+
+.day-section {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    margin-bottom: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: white;
+}
+
+.dark .day-section {
+    background: rgba(15, 23, 42, 0.5);
+    border-color: rgba(148, 163, 184, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.day-header {
+    user-select: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark .day-header {
+    border-bottom-color: rgba(148, 163, 184, 0.1);
+}
+
+.collapse-btn {
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
+}
+
+.day-content {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.day-content.hidden {
+    display: none;
+}
